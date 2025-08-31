@@ -1,26 +1,43 @@
 # Multi-Workflow AI Agent System
 
-A flexible multi-agent workflow system with dynamic prompt loading, configurable agent flows, intelligent prompt generation, and input preservation capabilities.
+A flexible multi-agent workflow system with dynamic prompt loading, configurable agent flows, intelligent prompt generation, input preservation capabilities, and comprehensive chat integration.
 
-## 🚀 Latest Features
+## 🚀 Core Features
 
-### ✨ **Configurable SwitchAgent** (NEW!)
-- **Intelligent Flow Selection**: Uses LLM-powered decision making instead of hardcoded keywords
-- **Dynamic Flow Discovery**: Automatically detects available workflows from WorkflowManager
+### 🧠 **Intelligent Workflow Routing**
+- **Configurable SwitchAgent**: LLM-powered workflow selection with dynamic flow discovery
+- **Smart Decision Making**: Uses AI to understand context and intent instead of hardcoded keywords
 - **Custom Keyword Mapping**: Define precise routing rules for specific use cases
-- **Backward Compatible**: Still supports original hardcoded patterns as fallback
+- **Auto-Discovery**: Automatically detects available workflows from WorkflowManager
+- **Backward Compatible**: Supports both new LLM decisions and legacy hardcoded patterns
 
-### ✨ **Prompt Agent** (NEW!)
-- **Dynamic Prompt Generation**: Creates custom system prompts for other agents based on user input
+### 🎯 **Dynamic Prompt Engineering**
+- **PromptAgent**: Analyzes user input and generates custom prompts for other agents
 - **Intelligent Analysis**: Understands user intent, domain, audience, and complexity requirements
 - **Automatic Application**: Generated prompts are automatically applied to downstream agents
 - **Context-Aware**: Considers factors like target audience and desired output format
+- **JSON-Structured Output**: Provides structured prompt modifications for precise agent configuration
 
-### ✨ **Input Preservation System** (NEW!)
+### 📋 **Input Preservation & Context Management**
 - **Original Input Tracking**: Maintains user's original request throughout the entire workflow
 - **Processing History**: Tracks full transformation chain for complete audit trail
 - **Context Preservation**: Agents can access both original and processed inputs
-- **Flexible Data Structures**: Supports complex data while remaining backward compatible
+- **Enhanced Data Structures**: Supports complex data while remaining backward compatible
+- **Chain Tracking**: Full visibility into input transformations across agent chains
+
+### 🖥️ **Multi-Interface Support**
+- **Terminal Mode**: Original command-line interface with full functionality
+- **Chat Mode**: Enhanced terminal with real-time chat events
+- **Streamlit Web UI**: Modern browser-based interface with live chat
+- **Event-Driven Architecture**: Loose coupling between interfaces and core logic
+- **Zero Breaking Changes**: All interfaces work with existing workflows
+
+### 🔄 **Advanced Workflow Capabilities**
+- **Dynamic Workflow Creation**: Add new workflows without code changes
+- **Multiple Execution Modes**: Support for different workflow patterns
+- **Configurable Agent Chains**: Flexible agent sequencing and routing
+- **Error Handling & Retry Logic**: Robust execution with failure recovery
+- **Performance Monitoring**: Track execution times and success rates
 
 ## Project Structure
 
@@ -28,12 +45,17 @@ A flexible multi-agent workflow system with dynamic prompt loading, configurable
 multi_workflow/
 ├── Agent.py                    # Base agent classes (Agent, LLMAgent)
 ├── SwitchAgent.py             # Configurable agent for intelligent workflow switching
-├── PromptAgent.py             # NEW: Prompt generation and input preservation agents
+├── PromptAgent.py             # Prompt generation and input preservation agents
 ├── WorkflowManager.py         # Enhanced workflow management with flow discovery
-├── main.py                    # Main application with configurable examples
-├── simple_demo.py             # NEW: Simple demonstration of prompt generation and preservation
-├── demo_dynamic_workflows.py  # NEW: Advanced workflow configuration demonstration
-├── test_configurable_switch.py # NEW: Test suite for configurable SwitchAgent
+├── ChatAgents.py              # Chat-specific agent implementations
+├── ChatInterface.py           # Chat interface utilities
+├── main.py                    # Main application entry point
+├── enhanced_main.py           # Enhanced main with advanced workflow features
+├── streamlit_app.py           # Streamlit web interface
+├── simple_demo.py             # Simple demonstration of prompt generation and preservation
+├── demo_dynamic_workflows.py  # Advanced workflow configuration demonstration
+├── demo_prompt_agent.py       # Prompt agent specific demonstrations
+├── demo.py                    # General demo file
 ├── prompt_loader.py           # Prompt loading utilities
 ├── prompt_manager.py          # Prompt management utility
 ├── prompts/                   # Directory containing prompt files
@@ -43,21 +65,101 @@ multi_workflow/
 │   ├── prompt4_refine.txt
 │   ├── prompt5_summary.txt
 │   ├── switch_agent.txt
-│   └── prompt_agent.txt       # NEW: System prompt for PromptAgent
-├── CONFIGURABLE_SWITCH_SOLUTION.md  # NEW: Documentation for SwitchAgent
-├── PROMPT_AGENT_SOLUTION.md         # NEW: Documentation for Prompt Agent features
-└── README.md                        # This file (updated!)
+│   └── prompt_agent.txt       # System prompt for PromptAgent
+├── tests/                     # Test suite
+│   ├── README.md              # Test documentation
+│   ├── test_comprehensive.py  # Comprehensive test suite
+│   ├── test_chat_improvements.py # Chat-specific tests
+│   ├── test_streamlit_events.py  # Streamlit event tests
+│   └── test_switch_logic.py   # SwitchAgent logic tests
+├── docs/                      # Documentation
+│   ├── CONFIGURABLE_SWITCH_SOLUTION.md # SwitchAgent documentation
+│   ├── PROMPT_AGENT_SOLUTION.md        # Prompt Agent documentation
+│   ├── IMPLEMENTATION_COMPLETE.md      # Implementation guide
+│   ├── FIX_PYTHON_INTERPRETER.md       # Setup documentation
+│   └── VSCODE_SETUP.md                 # VS Code setup guide
+└── README.md                  # This file
 ```
 
 ## Features
 
+## 🔧 Key Features & Capabilities
+
 ### Core System
 - **Multi-Agent System**: Define multiple LLM agents with different roles and prompts
-- **Dynamic Workflows**: Switch between different agent flows based on input content
-- **Prompt Management**: Store prompts in separate files for easy maintenance
-- **Configurable Models**: Support for different Ollama models and configurations
-- **Retry Logic**: Built-in retry mechanism for failed agent executions
-- **Custom Validation**: Define custom validation functions for agent outputs
+- **Flexible Workflows**: Create complex agent chains with conditional routing
+- **Dynamic Prompt Loading**: Load and manage prompts from external files
+- **Error Handling**: Robust retry logic and failure recovery mechanisms
+- **Performance Monitoring**: Track execution times and workflow metrics
+
+### Advanced Agent Types
+
+#### 🧠 **SwitchAgent** (Intelligent Routing)
+- **LLM-Powered Decisions**: Uses AI to understand intent and select appropriate workflows
+- **Dynamic Flow Discovery**: Automatically detects available workflows
+- **Custom Keyword Mapping**: Define precise routing rules for specific patterns
+- **Fallback Support**: Graceful handling of unmatched inputs
+- **Configuration Flexibility**: JSON-based configuration for easy customization
+
+#### 🎯 **PromptAgent** (Dynamic Prompt Engineering)
+- **Context Analysis**: Analyzes user input for domain, audience, and complexity
+- **Custom Prompt Generation**: Creates optimized prompts for downstream agents
+- **Structured Output**: Provides JSON-formatted prompt modifications
+- **Multi-Agent Support**: Can create prompts for multiple agents simultaneously
+- **Automatic Application**: Generated prompts are applied seamlessly
+
+#### 📋 **Enhanced Agents** (Input Preservation)
+- **Original Context Tracking**: Maintains original user input throughout workflows
+- **Processing History**: Full audit trail of transformations
+- **Flexible Data Handling**: Supports both simple strings and complex data structures
+- **Chain Visibility**: Complete transparency of input evolution
+- **Backward Compatibility**: Works with existing agent implementations
+
+### Interface Options
+
+#### 🖥️ **Terminal Mode**
+- Original command-line interface
+- Direct workflow execution
+- No external dependencies
+- Full backward compatibility
+
+#### 💬 **Enhanced Chat Mode**
+- Terminal with real-time events
+- Progress notifications
+- Chat-style interaction
+- Event-driven architecture
+
+#### 🌐 **Streamlit Web Interface**
+- Modern browser-based UI
+- Live chat with message history
+- SwitchAgent decision visibility
+- Real-time workflow monitoring
+- User-friendly interaction
+
+### Workflow Capabilities
+
+#### 🔄 **Dynamic Workflow Management**
+- **Runtime Creation**: Add new workflows without code changes
+- **Flow Discovery**: Automatic detection of available workflows
+- **Conditional Routing**: Smart agent selection based on content
+- **Parallel Execution**: Support for concurrent agent operations
+- **State Management**: Persistent workflow state tracking
+
+#### 🎨 **Workflow Patterns**
+- **Linear Chains**: Sequential agent processing
+- **Branching Flows**: Conditional routing based on content
+- **Hub-and-Spoke**: Central routing with specialized branches
+- **Loop Handling**: Circular workflow prevention
+- **Error Recovery**: Graceful failure handling and retry logic
+
+### System Architecture
+
+#### 🏗️ **Design Principles**
+- **Loose Coupling**: Independent components with clean interfaces
+- **Event-Driven**: Asynchronous communication via event bus
+- **Modular Design**: Pluggable components and extensions
+- **Zero Breaking Changes**: Full backward compatibility guaranteed
+- **Configuration-Driven**: Behavior modification via configuration files
 
 ### Advanced Features (NEW!)
 
@@ -89,7 +191,7 @@ multi_workflow/
 
 1. **Install Dependencies**:
    ```bash
-   pip install ollama
+   pip install ollama streamlit
    ```
 
 2. **Ensure Ollama is running** with the required models:
@@ -97,25 +199,56 @@ multi_workflow/
    ollama list
    ```
 
-3. **Run the main application**:
+3. **Choose your interface**:
+
+   **Terminal Mode** (Original Interface):
    ```bash
-   python main.py
+   python demo.py --terminal
    ```
 
-## 🎮 New Demonstrations & Examples
+   **Enhanced Chat Mode**:
+   ```bash
+   python demo.py --chat
+   ```
 
-### Basic Prompt Agent Demo
+   **Web Interface** (Recommended):
+   ```bash
+   streamlit run streamlit_app.py
+   ```
+
+## 🎮 Comprehensive Demonstrations
+
+### **System Overview Demo**
 ```bash
-python simple_demo.py
+python demo.py --both
 ```
-Demonstrates:
-- Dynamic prompt generation based on user input
-- Input preservation throughout workflow chains
-- Custom prompt application to agents
+**Shows**: Terminal and chat modes, backward compatibility, interface improvements
 
-### Advanced Configurable Workflows
+### **Dynamic Workflow Configuration**
 ```bash
 python demo_dynamic_workflows.py
+```
+**Features Demonstrated:**
+- Dynamic workflow creation without code changes
+- Configurable SwitchAgent with LLM decision making
+- Custom keyword mapping for precise routing
+- Multiple workflow patterns (creative, emergency, finance, standard)
+- Automatic flow discovery and agent updates
+
+### **Prompt Engineering & Input Preservation**
+```bash
+python demo_prompt_agent.py
+```
+**Features Demonstrated:**
+- PromptAgent analyzing user input and creating custom prompts
+- Dynamic prompt generation based on content, audience, and context
+- Enhanced agents receiving optimized system prompts
+- Original input preservation throughout complex workflows
+- Full processing history tracking
+
+### **Simple Prompt & Preservation Demo**
+```bash
+python simple_demo.py
 ```
 Demonstrates:
 - Dynamic workflow creation and management
