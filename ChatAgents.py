@@ -55,7 +55,7 @@ class UserInputAgent(Agent):
         self.show_context = show_context
 
     def execute(self, input_data: str) -> Dict[str, Any]:
-        """Request user input and wait for response"""
+        """Request user input and wait for response, then aggregate with original context"""
         
         # Send context to chat if enabled and available
         if self.show_context:
@@ -89,9 +89,25 @@ class UserInputAgent(Agent):
             message_type="user_input"
         ))
         
+        # FIXED: Aggregate original context with user input
+        if isinstance(input_data, dict):
+            original_content = input_data.get('output', str(input_data))
+        else:
+            original_content = str(input_data)
+        
+        # Create aggregated output combining original message + user input
+        aggregated_output = f"{original_content}\n\nUser additional input: {user_response}"
+        
+        # Also publish the aggregated context for transparency
+        chat_event_bus.publish(create_message_event(
+            sender=self.name,
+            content=f"📋 Aggregated context: {aggregated_output}",
+            message_type="context"
+        ))
+        
         return {
             "success": True,
-            "output": user_response
+            "output": aggregated_output
         }
 
 
