@@ -8,6 +8,68 @@ into any workflow to add chat functionality.
 
 from Agent import Agent
 from ChatInterface import chat_event_bus, ChatEvent, create_message_event
+
+
+def extract_clean_content(data):
+    """Extract clean content from various data formats for display"""
+    if data is None:
+        return "None"
+    
+    # If it's already a string, check for problematic formats
+    if isinstance(data, str):
+        # Handle "TOOL EXECUTED {'output': '...'}" format
+        if data.startswith("TOOL EXECUTED  "):
+            # Extract the part after "TOOL EXECUTED  "
+            remaining = data[15:]  # len("TOOL EXECUTED  ") = 15
+            # If the remaining part is a dictionary string representation, try to extract 'output' value
+            if remaining.startswith("{'output': "):
+                try:
+                    # Find the 'output' value by manual parsing since it might contain nested quotes
+                    start_idx = remaining.find("'output': '") + len("'output': '")
+                    if start_idx > len("'output': '") - 1:  # Found the pattern
+                        # Find the end - look for the last quote before the closing brace
+                        end_idx = remaining.rfind("'}")
+                        if end_idx > start_idx:
+                            content = remaining[start_idx:end_idx]
+                            # Unescape any escaped quotes
+                            content = content.replace("\\'", "'").replace("\\n", "\n")
+                            return content
+                except Exception:
+                    # If parsing fails, fall back to returning the remaining string
+                    pass
+            # If it's not a dictionary format or parsing failed, return as-is
+            return remaining
+        
+        # Handle direct "{'output': '...'}" format (when LLM returns this as a string)
+        elif data.startswith("{'output': "):
+            try:
+                # Find the 'output' value by manual parsing
+                start_idx = data.find("'output': '") + len("'output': '")
+                if start_idx > len("'output': '") - 1:  # Found the pattern
+                    # Find the end - look for the last quote before the closing brace
+                    end_idx = data.rfind("'}")
+                    if end_idx > start_idx:
+                        content = data[start_idx:end_idx]
+                        # Unescape any escaped quotes
+                        content = content.replace("\\'", "'").replace("\\n", "\n")
+                        return content
+            except Exception:
+                # If parsing fails, return the original string
+                pass
+        
+        return data
+    
+    # If it's a dictionary with 'output' key, extract that
+    if isinstance(data, dict):
+        if 'output' in data:
+            # Recursively extract content from nested 'output' keys
+            return extract_clean_content(data['output'])
+        else:
+            # For other dictionaries, convert to string but clean it up
+            return str(data)
+    
+    # For other types, convert to string
+    return str(data)
 from typing import Dict, Any
 
 
@@ -152,8 +214,8 @@ class WorkflowCompleteAgent(Agent):
         ))
         
         if self.show_final_output:
-            # Don't truncate final output - show complete result
-            final_output = str(input_data)
+            # Extract clean content for display
+            final_output = extract_clean_content(input_data)
                 
             chat_event_bus.publish(create_message_event(
                 sender=self.name,

@@ -21,6 +21,69 @@ class WorkflowManager:
             self.event_bus.disable()
         self.event_bus = None
 
+    def _extract_content(self, data):
+        """Extract clean content from various data formats"""
+        if data is None:
+            return "None"
+        
+        # If it's already a string, check for problematic formats
+        if isinstance(data, str):
+            # Handle "TOOL EXECUTED {'output': '...'}" format
+            if data.startswith("TOOL EXECUTED  "):
+                # Extract the part after "TOOL EXECUTED  "
+                remaining = data[15:]  # len("TOOL EXECUTED  ") = 15
+                # If the remaining part is a dictionary string representation, try to extract 'output' value
+                if remaining.startswith("{'output': "):
+                    try:
+                        # Find the 'output' value by manual parsing since it might contain nested quotes
+                        # Look for the pattern {'output': '...'} and extract what's between the quotes
+                        start_idx = remaining.find("'output': '") + len("'output': '")
+                        if start_idx > len("'output': '") - 1:  # Found the pattern
+                            # Find the end - look for the last quote before the closing brace
+                            # We need to handle escaped quotes properly
+                            end_idx = remaining.rfind("'}")
+                            if end_idx > start_idx:
+                                content = remaining[start_idx:end_idx]
+                                # Unescape any escaped quotes
+                                content = content.replace("\\'", "'").replace("\\n", "\n")
+                                return content
+                    except Exception as e:
+                        # If parsing fails, fall back to returning the remaining string
+                        pass
+                # If it's not a dictionary format or parsing failed, return as-is
+                return remaining
+            
+            # Handle direct "{'output': '...'}" format (when LLM returns this as a string)
+            elif data.startswith("{'output': "):
+                try:
+                    # Find the 'output' value by manual parsing
+                    start_idx = data.find("'output': '") + len("'output': '")
+                    if start_idx > len("'output': '") - 1:  # Found the pattern
+                        # Find the end - look for the last quote before the closing brace
+                        end_idx = data.rfind("'}")
+                        if end_idx > start_idx:
+                            content = data[start_idx:end_idx]
+                            # Unescape any escaped quotes
+                            content = content.replace("\\'", "'").replace("\\n", "\n")
+                            return content
+                except Exception as e:
+                    # If parsing fails, return the original string
+                    pass
+            
+            return data
+        
+        # If it's a dictionary with 'output' key, extract that
+        if isinstance(data, dict):
+            if 'output' in data:
+                # Recursively extract content from nested 'output' keys
+                return self._extract_content(data['output'])
+            else:
+                # For other dictionaries, convert to string but clean it up
+                return str(data)
+        
+        # For other types, convert to string
+        return str(data)
+
     def _publish_agent_event(self, event_type, agent_name, data):
         """Helper to publish agent events to chat"""
         if self.chat_enabled and self.event_bus:
@@ -108,9 +171,9 @@ class WorkflowManager:
                 if self.chat_enabled and not current_agent_name.startswith(('Chat', 'Workflow', 'UserInput')):
                     # Check if agent has a special display_output (like SwitchAgent decision)
                     if "display_output" in result:
-                        display_data = str(result["display_output"])
+                        display_data = self._extract_content(result["display_output"])
                     else:
-                        display_data = str(result["output"])
+                        display_data = self._extract_content(result["output"])
                     self._publish_agent_event("agent_output", current_agent_name, f"✅ {display_data}")
 
                 # Special case: Agent can return `{"switch_flow": "flow_name"}`
@@ -122,7 +185,9 @@ class WorkflowManager:
                         
                         # Restart from first agent in the new flow
                         first_agent = list(self.workflows[result["switch_flow"]].keys())[0]
-                        input_queue = [(first_agent, result["output"])]
+                        # Extract clean content before passing to the new workflow
+                        clean_output = self._extract_content(result["output"])
+                        input_queue = [(first_agent, clean_output)]
                     continue
 
                 next_agents = self.connections.get(current_agent_name, [])

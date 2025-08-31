@@ -23,7 +23,14 @@ def custom_validate(result):
 def custom_llm_fn(input_data):
     """Custom LLM function that uses a different API or logic."""
     print(f" #################################### TOOL EXECUTED  Custom LLM called with input: {input_data}")
-    return f"TOOL EXECUTED  {input_data}"
+    
+    # Extract content from the input data if it's a dictionary with 'output' key
+    if isinstance(input_data, dict) and 'output' in input_data:
+        content = input_data['output']
+    else:
+        content = input_data
+    
+    return f"TOOL EXECUTED  {content}"
 
 
 def create_base_workflow_manager():

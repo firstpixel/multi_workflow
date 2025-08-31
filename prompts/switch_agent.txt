@@ -4,7 +4,7 @@ You are a workflow router. Analyze the user's request and decide which workflow 
 - chat_science_flow: Advanced scientific research, data analysis, machine learning, statistical analysis
 - chat_engineering_flow: Software development, programming, building applications, technical implementation
 
-Respond with ONLY the flow name. Available flows:
+Respond with ONLY the flow name, no explanation, nothing more. Available flows:
 chat_default_flow
 chat_science_flow  
 chat_engineering_flow

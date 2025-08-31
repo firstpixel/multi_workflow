@@ -78,7 +78,17 @@ class LLMAgent(Agent):
     def execute(self, user_input):
         """Executes the LLM using the ollama API."""
         print(f" #################################### Agent {self.name}: Executing with input: {user_input}")
-        full_prompt = f"{self.context}\n\n{self.prompt}\n\n{user_input}"
+        
+        # Extract clean content from input if it's a dictionary
+        if isinstance(user_input, dict):
+            if 'output' in user_input:
+                clean_input = user_input['output']
+            else:
+                clean_input = str(user_input)
+        else:
+            clean_input = user_input
+            
+        full_prompt = f"{self.context}\n\n{self.prompt}\n\n{clean_input}"
         messages = [
             {"role": "system", "content": self.system},
             {"role": "user", "content": full_prompt}
